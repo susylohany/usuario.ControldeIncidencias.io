@@ -1,0 +1,202 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Control de Incidencias</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        form, .filtros {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+
+        input, select, textarea, button {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+        }
+
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background-color: #007BFF;
+            color: white;
+        }
+
+        .filtros input, .filtros select, .filtros button {
+            width: auto;
+            margin-right: 10px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Control de Incidencias</h1>
+
+    <form id="formulario">
+        <!-- Ítem mostrado como solo lectura -->
+        <label>Ítem:</label>
+        <input type="text" id="item" disabled>
+
+        <label>Nombre de la Empresa:</label>
+        <input type="text" id="empresa" required>
+
+        <label>Incidencia:</label>
+        <input type="text" id="incidencia" required>
+
+        <label>Fecha:</label>
+        <input type="date" id="fecha" required>
+
+        <label>Detalle de la Incidencia:</label>
+        <textarea id="detalle" rows="3"></textarea>
+
+        <label>Estado:</label>
+        <select id="estado">
+            <option value="Pendiente">Pendiente</option>
+            <option value="Resuelta">Resuelta</option>
+        </select>
+
+        <label>Observaciones:</label>
+        <textarea id="observaciones" rows="2"></textarea>
+
+        <button type="submit">Agregar Incidencia</button>
+    </form>
+
+    <div class="filtros">
+        <label>Buscar por Incidencia:</label>
+        <input type="text" id="busquedaIncidencia">
+
+        <label>Filtrar por Estado:</label>
+        <select id="filtroEstado">
+            <option value="">Todos</option>
+            <option value="Pendiente">Pendiente</option>
+            <option value="Resuelta">Resuelta</option>
+        </select>
+
+        <button type="button" id="btnBuscar">🔍 Buscar</button>
+    </div>
+
+    <table id="tabla">
+        <thead>
+            <tr>
+                <th>Ítem</th>
+                <th>Empresa</th>
+                <th>Incidencia</th>
+                <th>Fecha</th>
+                <th>Detalle</th>
+                <th>Estado</th>
+                <th>Observaciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Incidencias ingresadas aquí -->
+        </tbody>
+    </table>
+
+    <script>
+        let itemCounter = 1;
+        const formulario = document.getElementById('formulario');
+        const tablaBody = document.querySelector('#tabla tbody');
+        const busquedaIncidencia = document.getElementById('busquedaIncidencia');
+        const filtroEstado = document.getElementById('filtroEstado');
+        const campoItem = document.getElementById('item');
+
+        let datos = [];
+
+        // Mostrar el siguiente número de ítem en el campo de solo lectura
+        function actualizarItem() {
+            campoItem.value = itemCounter;
+        }
+
+        actualizarItem();
+
+        formulario.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const empresa = document.getElementById('empresa').value;
+            const incidencia = document.getElementById('incidencia').value;
+            const fecha = document.getElementById('fecha').value;
+            const detalle = document.getElementById('detalle').value;
+            const estado = document.getElementById('estado').value;
+            const observaciones = document.getElementById('observaciones').value;
+
+            const registro = {
+                item: itemCounter++,
+                empresa,
+                incidencia,
+                fecha,
+                detalle,
+                estado,
+                observaciones
+            };
+
+            datos.push(registro);
+            mostrarDatos();
+            formulario.reset();
+            actualizarItem();
+        });
+
+        function mostrarDatos() {
+            const filtroTexto = busquedaIncidencia.value.toLowerCase();
+            const filtroEstadoValor = filtroEstado.value;
+
+            tablaBody.innerHTML = '';
+
+            datos
+                .filter(d =>
+                    d.incidencia.toLowerCase().includes(filtroTexto) &&
+                    (filtroEstadoValor === '' || d.estado === filtroEstadoValor)
+                )
+                .forEach(d => {
+                    const fila = document.createElement('tr');
+                    fila.innerHTML = `
+                <td>${d.item}</td>
+                <td>${d.empresa}</td>
+                <td>${d.incidencia}</td>
+                <td>${d.fecha}</td>
+                <td>${d.detalle}</td>
+                <td>${d.estado}</td>
+                <td>${d.observaciones}</td>
+              `;
+                    tablaBody.appendChild(fila);
+                });
+        }
+
+        // Botón de búsqueda
+        document.getElementById('btnBuscar').addEventListener('click', mostrarDatos);
+    </script>
+
+</body>
+</html>
